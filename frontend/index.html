@@ -564,7 +564,13 @@
       }
 
       if (data.type === 'empty') {
-        resultEl.innerHTML = `<div class="state-msg">No se encontraron resultados para <strong>${esc(q)}</strong>.</div>`
+        const backBtn = lastVariants
+          ? `<button class="back-btn" onclick="renderVariants(lastVariants)" style="margin-bottom:12px;">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+               Volver a variantes
+             </button><br>`
+          : ''
+        resultEl.innerHTML = `${backBtn}<div class="state-msg">No se encontraron resultados para <strong>${esc(q)}</strong>.</div>`
         return
       }
 
