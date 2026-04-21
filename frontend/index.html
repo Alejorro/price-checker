@@ -614,7 +614,7 @@
           <div class="supplier-row-wrap">
             <div class="supplier-summary" onclick="toggleSupplier(this)">
               ${chevronSvg()}
-              <span class="supplier-name">${esc(s.name)}${s.name === 'LENOVO IRELAND INTERNATIONAL LIMITED' ? ' <span style="font-size:11px;font-weight:400;color:var(--text-muted);">(Costo × 1.24)</span>' : ''}</span>
+              <span class="supplier-name">${esc(s.name)}</span>
               <span class="supplier-avg">USD ${fmt(s.average_usd)}</span>
               <span class="supplier-count">(${s.count} compra${s.count !== 1 ? 's' : ''})</span>
             </div>
