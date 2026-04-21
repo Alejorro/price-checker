@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Price Checker — DOT4</title>
+  <link rel="icon" href="https://forecast.dot4sa.com.ar/favicon.png" type="image/png" />
+  <style>
+    :root {
+      --bg:             #F8FAFC;
+      --card:           #FFFFFF;
+      --border:         #E2E8F0;
+      --border-strong:  #CBD5E1;
+      --text-primary:   #0F172A;
+      --text-secondary: #64748B;
+      --text-muted:     #94A3B8;
+      --blue:           #2563EB;
+      --blue-hover:     #1D4ED8;
+      --blue-light:     #EFF6FF;
+      --green:          #16A34A;
+      --slate-50:       #F8FAFC;
+      --slate-100:      #F1F5F9;
+      --slate-200:      #E2E8F0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Top nav ──────────────────────────────────────────────── */
+
+    .top-nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .top-nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .nav-brand-app {
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+      letter-spacing: 0.025em;
+      line-height: 1;
+      margin-bottom: 1px;
+    }
+
+    /* ── Page shell ───────────────────────────────────────────── */
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 24px 80px;
+    }
+
+    /* ── Page header ──────────────────────────────────────────── */
+
+    .page-header {
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ── Filter card ──────────────────────────────────────────── */
+
+    .filter-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 7px 12px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .filter-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .filter-input::placeholder { color: var(--text-muted); }
+
+    .filter-sep {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .filter-select,
+    .filter-date {
+      padding: 7px 10px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .filter-select:focus,
+    .filter-date:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .filter-date { width: 170px; }
+    .filter-date::placeholder { color: var(--text-muted); }
+
+    .btn-primary {
+      padding: 7px 18px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .btn-primary:hover { background: var(--blue-hover); }
+
+    /* ── Section label ────────────────────────────────────────── */
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    /* ── Variants card ────────────────────────────────────────── */
+
+    .variants-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .variants-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--slate-50);
+    }
+
+    .variant-item {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--slate-100);
+      transition: background 0.1s;
+    }
+    .variant-item:last-child { border-bottom: none; }
+    .variant-item:hover {
+      background: var(--blue-light);
+      color: var(--blue);
+    }
+
+    /* ── Result card ──────────────────────────────────────────── */
+
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .result-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-product {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .result-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    /* ── KPI row ──────────────────────────────────────────────── */
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kpi-cell {
+      padding: 16px 20px;
+      border-right: 1px solid var(--border);
+    }
+    .kpi-cell:last-child { border-right: none; }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 20px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .kpi-value.green { color: var(--green); }
+
+    .kpi-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Breakdown section ────────────────────────────────────── */
+
+    .breakdown-header {
+      padding: 10px 20px;
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .supplier-row-wrap {
+      border-bottom: 1px solid var(--slate-100);
+    }
+    .supplier-row-wrap:last-child { border-bottom: none; }
+
+    .supplier-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .supplier-summary:hover { background: var(--slate-50); }
+    .supplier-summary.open  { background: #EFF6FF; }
+
+    .chevron {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: transform 0.18s ease, color 0.15s;
+    }
+    .chevron.open {
+      transform: rotate(90deg);
+      color: var(--blue);
+    }
+
+    .supplier-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .supplier-avg {
+      font-size: 13px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+
+    .supplier-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-left: 4px;
+    }
+
+    /* ── Purchases sub-table ──────────────────────────────────── */
+
+    .purchases-wrap {
+      display: none;
+      background: var(--slate-50);
+      border-top: 1px solid var(--slate-200);
+      padding: 0 0 8px 0;
+      animation: fadeIn 0.15s ease;
+    }
+    .purchases-wrap.open { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-3px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .purchases-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .purchases-table thead tr {
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .purchases-table th {
+      padding: 8px 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      text-align: left;
+    }
+    .purchases-table th.right { text-align: right; }
+
+    .purchases-table tbody tr {
+      border-bottom: 1px solid var(--slate-100);
+    }
+    .purchases-table tbody tr:last-child { border-bottom: none; }
+
+    .purchases-table td {
+      padding: 8px 20px;
+      font-size: 13px;
+    }
+
+    .td-date  { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+    .td-price { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
+    .td-rate  { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+    .td-order { text-align: right; color: var(--text-muted); font-size: 12px; }
+
+    /* ── Empty / error / loading ──────────────────────────────── */
+
+    .state-msg {
+      padding: 16px 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .loading-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .kpi-row { grid-template-columns: 1fr; }
+      .kpi-cell { border-right: none; border-bottom: 1px solid var(--border); }
+      .kpi-cell:last-child { border-bottom: none; }
+      .filter-sep { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top nav -->
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="nav-brand">
+        <img src="https://forecast.dot4sa.com.ar/dot4-logo.png" alt="DOT4" style="height:24px;display:block;margin-bottom:1px;" />
+        <span class="nav-brand-app">Price Checker</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page -->
+  <div class="page">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-title">Consulta de precios</div>
+      <div class="page-subtitle">Historial de compras en Odoo convertido a USD oficial</div>
+    </div>
+
+    <!-- Filter card -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <input type="text" id="q" class="filter-input" placeholder="Nombre del producto..." autocomplete="off" />
+        <div class="filter-sep"></div>
+        <label class="filter-label" for="months">Período</label>
+        <select id="months" class="filter-select">
+          <option value="1">1 mes</option>
+          <option value="2" selected>2 meses</option>
+          <option value="3">3 meses</option>
+          <option value="4">4 meses</option>
+          <option value="6">6 meses</option>
+          <option value="12">1 año</option>
+          <option value="all">Todo</option>
+        </select>
+        <div class="filter-sep"></div>
+        <label class="filter-label" for="dateInput">Fecha exacta</label>
+        <input type="date" id="dateInput" class="filter-date" style="width:160px;" />
+        <button class="btn-primary" onclick="doSearch()">Buscar</button>
+      </div>
+    </div>
+
+    <!-- Result area -->
+    <div id="result"></div>
+
+  </div>
+
+  <script>
+    const qEl      = document.getElementById('q')
+    const monthsEl = document.getElementById('months')
+    const dateEl   = document.getElementById('dateInput')
+    const resultEl = document.getElementById('result')
+
+    qEl.addEventListener('keydown',    e => { if (e.key === 'Enter') doSearch() })
+    dateEl.addEventListener('change', () => doSearch())
+
+    function fmt(n) {
+      return Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
+
+    function fmtDate(iso) {
+      const [y, m, d] = iso.split('-')
+      return `${d}/${m}/${y}`
+    }
+
+    function chevronSvg() {
+      return `<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`
+    }
+
+    async function doSearch(overrideQ) {
+      const q = (overrideQ !== undefined ? overrideQ : qEl.value).trim()
+      if (!q) return
+
+      const months  = monthsEl.value
+      const dateOvr = dateEl.value.trim()
+
+      let url = `/search?q=${encodeURIComponent(q)}&months=${months}`
+      if (dateOvr) url += `&date=${encodeURIComponent(dateOvr)}`
+
+      resultEl.innerHTML = `<div class="loading-wrap"><div class="spinner"></div> Buscando...</div>`
+
+      let data
+      try {
+        const res = await fetch(url)
+        data = await res.json()
+      } catch (e) {
+        resultEl.innerHTML = `<div class="state-msg">Error al conectar con el servidor.</div>`
+        return
+      }
+
+      if (data.type === 'empty') {
+        resultEl.innerHTML = `<div class="state-msg">No se encontraron resultados para <strong>${esc(q)}</strong>.</div>`
+        return
+      }
+
+      if (data.type === 'variants') { renderVariants(data); return }
+      if (data.type === 'result')   { renderResult(data);   return }
+    }
+
+    function renderVariants(data) {
+      const items = data.variants.map(v =>
+        `<div class="variant-item" data-name="${esc(v.product_name)}">${esc(v.product_name)}</div>`
+      ).join('')
+
+      resultEl.innerHTML = `
+        <div class="variants-card">
+          <div class="variants-header">
+            <span class="section-label">Variantes encontradas — elegí una</span>
+          </div>
+          ${items}
+        </div>`
+
+      resultEl.querySelectorAll('.variant-item').forEach(el => {
+        el.addEventListener('click', () => {
+          qEl.value = el.dataset.name
+          doSearch(el.dataset.name)
+        })
+      })
+    }
+
+    function renderResult(data) {
+      const suppliersHtml = data.suppliers.map(s => {
+        const purchasesHtml = s.purchases.map(p => `
+          <tr>
+            <td class="td-date">${fmtDate(p.date)}</td>
+            <td class="td-price">USD ${fmt(p.price_usd)}</td>
+            <td class="td-rate">${p.rate_ars ? '$ ' + fmt(p.rate_ars) : '—'}</td>
+            <td class="td-order">${esc(p.order_name)}</td>
+          </tr>`).join('')
+
+        return `
+          <div class="supplier-row-wrap">
+            <div class="supplier-summary" onclick="toggleSupplier(this)">
+              ${chevronSvg()}
+              <span class="supplier-name">${esc(s.name)}</span>
+              <span class="supplier-avg">USD ${fmt(s.average_usd)}</span>
+              <span class="supplier-count">(${s.count} compra${s.count !== 1 ? 's' : ''})</span>
+            </div>
+            <div class="purchases-wrap">
+              <table class="purchases-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th class="right">Precio USD</th>
+                    <th class="right">USD/ARS</th>
+                    <th class="right">Orden</th>
+                  </tr>
+                </thead>
+                <tbody>${purchasesHtml}</tbody>
+              </table>
+            </div>
+          </div>`
+      }).join('')
+
+      resultEl.innerHTML = `
+        <div class="result-card">
+          <div class="result-header">
+            <div class="result-product">${esc(data.product)}</div>
+            <div class="result-meta">Período: ${esc(data.period)}</div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-cell">
+              <div class="kpi-label">Promedio</div>
+              <div class="kpi-value">USD ${fmt(data.average_usd)}</div>
+              <div class="kpi-meta">${data.total_purchases} compra${data.total_purchases !== 1 ? 's' : ''}</div>
+            </div>
+            <div class="kpi-cell">
+              <div class="kpi-label">Último precio</div>
+              <div class="kpi-value">USD ${fmt(data.last_purchase.price_usd)}</div>
+              <div class="kpi-meta">${esc(data.last_purchase.supplier)} · ${fmtDate(data.last_purchase.date)} · ${esc(data.last_purchase.order_name)}</div>
+            </div>
+            <div class="kpi-cell">
+              <div class="kpi-label">Más barato</div>
+              <div class="kpi-value green">USD ${fmt(data.cheapest.price_usd)}</div>
+              <div class="kpi-meta">${esc(data.cheapest.supplier)} · ${fmtDate(data.cheapest.date)} · ${esc(data.cheapest.order_name)}</div>
+            </div>
+          </div>
+
+          <div class="breakdown-header">
+            <span class="section-label">Desglose por proveedor</span>
+          </div>
+
+          ${suppliersHtml}
+        </div>`
+    }
+
+    function toggleSupplier(header) {
+      const chevron = header.querySelector('.chevron')
+      const list    = header.nextElementSibling
+      const isOpen  = list.classList.contains('open')
+      list.classList.toggle('open', !isOpen)
+      chevron.classList.toggle('open', !isOpen)
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+    }
+  </script>
+</body>
+</html>
