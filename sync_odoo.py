@@ -134,6 +134,19 @@ def sync_purchase_lines(uid, models, since: str):
     )
     orders = {o["id"]: o for o in orders_data}
 
+    product_ids = list({l["product_id"][0] for l in lines if l["product_id"]})
+    print(f"  Descargando categorías de {len(product_ids)} productos...")
+    products_data = models.execute_kw(
+        ODOO_DB, uid, ODOO_PASSWORD,
+        "product.product", "read",
+        [product_ids],
+        {"fields": ["id", "categ_id"]}
+    )
+    product_categories = {
+        p["id"]: (p["categ_id"][1] if p["categ_id"] else "")
+        for p in products_data
+    }
+
     print("  Calculando precios USD...")
     rows = []
     no_rate = 0
@@ -153,9 +166,11 @@ def sync_purchase_lines(uid, models, since: str):
                 continue
             order_date = order_date_raw[:10]
 
+            product_id = line["product_id"][0] if line["product_id"] else None
             product_name = clean_name(line["product_id"][1] if line["product_id"] else "")
             if not product_name:
                 continue
+            product_category = product_categories.get(product_id, "") if product_id else ""
             currency = line["currency_id"][1] if line["currency_id"] else "USD"
             price_original = float(line["price_unit"] or 0)
             quantity = float(line["product_qty"] or 0)
@@ -168,14 +183,14 @@ def sync_purchase_lines(uid, models, since: str):
                 continue
 
             rows.append((odoo_line_id, order_name, order_date, product_name,
-                         supplier_name, quantity, price_original, currency, price_usd))
+                         supplier_name, quantity, price_original, currency, price_usd, product_category))
 
     print(f"  Guardando {len(rows)} líneas en la base de datos...")
     with cursor() as (cur, _):
         psycopg2.extras.execute_values(cur, """
             INSERT INTO purchase_lines
                 (odoo_line_id, order_name, order_date, product_name,
-                 supplier_name, quantity, price_original, currency, price_usd)
+                 supplier_name, quantity, price_original, currency, price_usd, product_category)
             VALUES %s
             ON CONFLICT (odoo_line_id) DO UPDATE SET
                 order_name = EXCLUDED.order_name,
@@ -186,6 +201,7 @@ def sync_purchase_lines(uid, models, since: str):
                 price_original = EXCLUDED.price_original,
                 currency = EXCLUDED.currency,
                 price_usd = EXCLUDED.price_usd,
+                product_category = EXCLUDED.product_category,
                 synced_at = NOW()
         """, rows)
 

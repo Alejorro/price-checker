@@ -95,7 +95,7 @@ def search(
         cur.execute(f"""
             SELECT
                 pl.supplier_name, pl.order_date, pl.price_usd, pl.order_name,
-                pl.quantity,
+                pl.quantity, pl.product_category,
                 ROUND((1.0 / (
                     SELECT cr.rate FROM currency_rates cr
                     WHERE cr.currency_name = 'USD' AND cr.rate_date <= pl.order_date
@@ -118,7 +118,7 @@ def search(
         if not r["price_usd"] or float(r["price_usd"]) <= 0:
             continue
         row = dict(r)
-        if row.get("supplier_name") == IRELAND_SUPPLIER:
+        if row.get("supplier_name") == IRELAND_SUPPLIER and "PORTABLES" in (row.get("product_category") or "").upper():
             row["price_usd"] = float(row["price_usd"]) * IRELAND_MULTIPLIER
         adjusted.append(row)
     rows = adjusted

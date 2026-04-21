@@ -38,8 +38,11 @@ def init_db():
                 price_original NUMERIC,
                 currency VARCHAR(10),
                 price_usd NUMERIC,
+                product_category TEXT,
                 synced_at TIMESTAMP DEFAULT NOW()
             );
+
+            ALTER TABLE purchase_lines ADD COLUMN IF NOT EXISTS product_category TEXT;
 
             CREATE TABLE IF NOT EXISTS currency_rates (
                 id SERIAL PRIMARY KEY,
