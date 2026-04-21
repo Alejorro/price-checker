@@ -159,6 +159,33 @@ Se usa `odoo_line_id` como clave única. Todo en batch con `execute_values` para
 - `months` inválido → fallback a 2 meses
 - `date` con formato inválido → HTTP 400
 - La búsqueda es por string literal — `notebook v15` no matchea `NOTEBOOK LENOVO V15` porque tiene `LENOVO` en el medio. Buscar por modelo (`V15 G5`) o código (`83GW004QAC`) funciona mejor.
+- Respuesta incluye `total_units` (suma de cantidades de todas las líneas del período).
+
+---
+
+## Promedio ponderado
+
+El `average_usd` se calcula como promedio ponderado por cantidad:
+
+```
+total_qty   = Σ(quantity or 1)
+average_usd = Σ(price_usd × (quantity or 1)) / total_qty
+```
+
+`or 1` se usa como fallback cuando `quantity` es null — tanto en numerador como denominador, siempre consistente. Lo mismo aplica al promedio por proveedor.
+
+---
+
+## Ajuste de precio: Lenovo Ireland
+
+Las compras del proveedor **LENOVO IRELAND INTERNATIONAL LIMITED** se multiplican por `1.24` al momento de la consulta (no al guardar en DB). Esto aplica a todos los cálculos: promedio, último precio, más barato, desglose por proveedor.
+
+```python
+IRELAND_SUPPLIER = "LENOVO IRELAND INTERNATIONAL LIMITED"
+IRELAND_MULTIPLIER = 1.24
+```
+
+El `rate_ars` (tipo de cambio) no se ajusta — es solo informativo.
 
 ---
 
@@ -172,3 +199,6 @@ Se usa `odoo_line_id` como clave única. Todo en batch con `execute_values` para
 - El tipo de cambio (ARS/USD) se muestra en el desglose por proveedor — se calcula con `1/rate` del fallback más cercano anterior.
 - Diseño visual alineado con DOT4 Forecast — mismos colores, tipografía, cards y tabla de desglose.
 - Logo: `https://forecast.dot4sa.com.ar/dot4-logo.png` y favicon: `https://forecast.dot4sa.com.ar/favicon.png`
+- El botón "Volver a variantes" aparece solo cuando se llegó al resultado desde la lista de variantes (no si se buscó el producto directamente). Se guarda en `lastVariants` y se resetea con cada búsqueda nueva.
+- La tabla de desglose muestra columna `Cant.` (cantidad de unidades por compra).
+- `quantity` nulo en la tabla se muestra como `—`.

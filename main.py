@@ -53,7 +53,10 @@ def period_label(months: str, date_override: Optional[str]) -> str:
         return date_override
     if months == "all":
         return "todo el historial"
-    n = int(months)
+    try:
+        n = int(months)
+    except ValueError:
+        n = 2
     return f"último mes" if n == 1 else f"últimos {n} meses"
 
 
@@ -92,6 +95,7 @@ def search(
         cur.execute(f"""
             SELECT
                 pl.supplier_name, pl.order_date, pl.price_usd, pl.order_name,
+                pl.quantity,
                 ROUND((1.0 / (
                     SELECT cr.rate FROM currency_rates cr
                     WHERE cr.currency_name = 'USD' AND cr.rate_date <= pl.order_date
@@ -106,13 +110,26 @@ def search(
     if not rows:
         return {"type": "empty", "query": q_clean, "product": product_name}
 
-    rows = [r for r in rows if r["price_usd"] and float(r["price_usd"]) > 0]
+    IRELAND_SUPPLIER = "LENOVO IRELAND INTERNATIONAL LIMITED"
+    IRELAND_MULTIPLIER = 1.24
+
+    adjusted = []
+    for r in rows:
+        if not r["price_usd"] or float(r["price_usd"]) <= 0:
+            continue
+        row = dict(r)
+        if row.get("supplier_name") == IRELAND_SUPPLIER:
+            row["price_usd"] = float(row["price_usd"]) * IRELAND_MULTIPLIER
+        adjusted.append(row)
+    rows = adjusted
 
     if not rows:
         return {"type": "empty", "query": q_clean, "product": product_name}
 
-    all_prices = [float(r["price_usd"]) for r in rows]
-    average_usd = round(sum(all_prices) / len(all_prices), 2)
+    total_qty = sum(float(r["quantity"] or 1) for r in rows)
+    average_usd = round(
+        sum(float(r["price_usd"]) * float(r["quantity"] or 1) for r in rows) / total_qty, 2
+    )
     total_purchases = len(rows)
 
     last = rows[0]
@@ -127,15 +144,19 @@ def search(
 
     suppliers = []
     for sname, srows in suppliers_map.items():
-        prices = [float(r["price_usd"]) for r in srows]
+        s_qty = sum(float(r["quantity"] or 1) for r in srows)
+        s_avg = round(
+            sum(float(r["price_usd"]) * float(r["quantity"] or 1) for r in srows) / s_qty, 2
+        )
         suppliers.append({
             "name": sname,
-            "average_usd": round(sum(prices) / len(prices), 2),
+            "average_usd": s_avg,
             "count": len(srows),
             "purchases": [
                 {
                     "date": r["order_date"].isoformat(),
                     "price_usd": float(r["price_usd"]),
+                    "quantity": float(r["quantity"]) if r["quantity"] else None,
                     "order_name": r["order_name"] or "",
                     "rate_ars": float(r["rate_ars"]) if r["rate_ars"] else None
                 }
@@ -151,6 +172,7 @@ def search(
         "period": period_label(months, date),
         "average_usd": average_usd,
         "total_purchases": total_purchases,
+        "total_units": int(total_qty) if total_qty == int(total_qty) else round(total_qty, 2),
         "last_purchase": {
             "price_usd": float(last["price_usd"]),
             "supplier": last["supplier_name"] or "Sin proveedor",

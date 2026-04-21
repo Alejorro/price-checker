@@ -75,13 +75,13 @@
     .page {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 24px 24px 80px;
+      padding: 28px 24px 48px;
     }
 
     /* ── Page header ──────────────────────────────────────────── */
 
     .page-header {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .page-title {
@@ -94,7 +94,7 @@
     .page-subtitle {
       font-size: 13px;
       color: var(--text-secondary);
-      margin-top: 2px;
+      margin-top: 3px;
     }
 
     /* ── Filter card ──────────────────────────────────────────── */
@@ -104,13 +104,13 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-      padding: 16px 20px;
-      margin-bottom: 20px;
+      padding: 14px 20px;
+      margin-bottom: 16px;
     }
 
     .filter-row {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
       flex-wrap: wrap;
     }
@@ -136,7 +136,7 @@
 
     .filter-sep {
       width: 1px;
-      height: 28px;
+      height: 24px;
       background: var(--border);
       flex-shrink: 0;
     }
@@ -189,8 +189,8 @@
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-secondary);
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
     }
 
     /* ── Variants card ────────────────────────────────────────── */
@@ -210,7 +210,7 @@
     }
 
     .variant-item {
-      padding: 10px 20px;
+      padding: 11px 20px;
       cursor: pointer;
       font-size: 13px;
       color: var(--text-primary);
@@ -221,6 +221,30 @@
     .variant-item:hover {
       background: var(--blue-light);
       color: var(--blue);
+    }
+
+    /* ── Back button ──────────────────────────────────────────── */
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 5px 10px 5px 7px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      transition: border-color 0.12s, color 0.12s, background 0.12s;
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
+    .back-btn:hover {
+      background: var(--slate-50);
+      border-color: var(--border-strong);
+      color: var(--text-primary);
     }
 
     /* ── Result card ──────────────────────────────────────────── */
@@ -234,7 +258,7 @@
     }
 
     .result-header {
-      padding: 16px 20px;
+      padding: 20px 24px 18px;
       border-bottom: 1px solid var(--border);
     }
 
@@ -248,7 +272,7 @@
     .result-meta {
       font-size: 12px;
       color: var(--text-secondary);
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
     /* ── KPI row ──────────────────────────────────────────────── */
@@ -260,7 +284,7 @@
     }
 
     .kpi-cell {
-      padding: 16px 20px;
+      padding: 20px 24px;
       border-right: 1px solid var(--border);
     }
     .kpi-cell:last-child { border-right: none; }
@@ -269,13 +293,13 @@
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
     }
 
     .kpi-value {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
       color: var(--text-primary);
@@ -286,14 +310,14 @@
     .kpi-meta {
       font-size: 12px;
       color: var(--text-secondary);
-      margin-top: 4px;
+      margin-top: 6px;
       font-variant-numeric: tabular-nums;
     }
 
     /* ── Breakdown section ────────────────────────────────────── */
 
     .breakdown-header {
-      padding: 10px 20px;
+      padding: 12px 24px;
       background: var(--slate-50);
       border-bottom: 1px solid var(--border);
     }
@@ -307,7 +331,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 11px 20px;
+      padding: 12px 24px;
       cursor: pointer;
       user-select: none;
       transition: background 0.1s;
@@ -373,7 +397,7 @@
     }
 
     .purchases-table th {
-      padding: 8px 20px;
+      padding: 8px 24px;
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
@@ -389,11 +413,12 @@
     .purchases-table tbody tr:last-child { border-bottom: none; }
 
     .purchases-table td {
-      padding: 8px 20px;
+      padding: 9px 24px;
       font-size: 13px;
     }
 
     .td-date  { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+    .td-qty   { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
     .td-price { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
     .td-rate  { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
     .td-order { text-align: right; color: var(--text-muted); font-size: 12px; }
@@ -491,11 +516,20 @@
     const dateEl   = document.getElementById('dateInput')
     const resultEl = document.getElementById('result')
 
+    let lastVariants = null
+
     qEl.addEventListener('keydown',    e => { if (e.key === 'Enter') doSearch() })
     dateEl.addEventListener('change', () => doSearch())
 
     function fmt(n) {
       return Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
+
+    function fmtQty(n) {
+      const v = Number(n)
+      return v % 1 === 0
+        ? v.toLocaleString('es-AR')
+        : v.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     }
 
     function fmtDate(iso) {
@@ -507,7 +541,7 @@
       return `<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`
     }
 
-    async function doSearch(overrideQ) {
+    async function doSearch(overrideQ, fromVariant = false) {
       const q = (overrideQ !== undefined ? overrideQ : qEl.value).trim()
       if (!q) return
 
@@ -517,6 +551,7 @@
       let url = `/search?q=${encodeURIComponent(q)}&months=${months}`
       if (dateOvr) url += `&date=${encodeURIComponent(dateOvr)}`
 
+      if (!fromVariant) lastVariants = null
       resultEl.innerHTML = `<div class="loading-wrap"><div class="spinner"></div> Buscando...</div>`
 
       let data
@@ -533,7 +568,7 @@
         return
       }
 
-      if (data.type === 'variants') { renderVariants(data); return }
+      if (data.type === 'variants') { lastVariants = data; renderVariants(data); return }
       if (data.type === 'result')   { renderResult(data);   return }
     }
 
@@ -553,7 +588,7 @@
       resultEl.querySelectorAll('.variant-item').forEach(el => {
         el.addEventListener('click', () => {
           qEl.value = el.dataset.name
-          doSearch(el.dataset.name)
+          doSearch(el.dataset.name, true)
         })
       })
     }
@@ -563,6 +598,7 @@
         const purchasesHtml = s.purchases.map(p => `
           <tr>
             <td class="td-date">${fmtDate(p.date)}</td>
+            <td class="td-qty">${p.quantity != null ? fmtQty(p.quantity) : '—'}</td>
             <td class="td-price">USD ${fmt(p.price_usd)}</td>
             <td class="td-rate">${p.rate_ars ? '$ ' + fmt(p.rate_ars) : '—'}</td>
             <td class="td-order">${esc(p.order_name)}</td>
@@ -581,6 +617,7 @@
                 <thead>
                   <tr>
                     <th>Fecha</th>
+                    <th class="right">Cant.</th>
                     <th class="right">Precio USD</th>
                     <th class="right">USD/ARS</th>
                     <th class="right">Orden</th>
@@ -592,7 +629,15 @@
           </div>`
       }).join('')
 
+      const backBtn = lastVariants
+        ? `<button class="back-btn" onclick="renderVariants(lastVariants)">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+             Volver a variantes
+           </button>`
+        : ''
+
       resultEl.innerHTML = `
+        ${backBtn}
         <div class="result-card">
           <div class="result-header">
             <div class="result-product">${esc(data.product)}</div>
@@ -603,7 +648,7 @@
             <div class="kpi-cell">
               <div class="kpi-label">Promedio</div>
               <div class="kpi-value">USD ${fmt(data.average_usd)}</div>
-              <div class="kpi-meta">${data.total_purchases} compra${data.total_purchases !== 1 ? 's' : ''}</div>
+              <div class="kpi-meta">${data.total_purchases} compra${data.total_purchases !== 1 ? 's' : ''} · ${fmtQty(data.total_units)} unidad${data.total_units !== 1 ? 'es' : ''}</div>
             </div>
             <div class="kpi-cell">
               <div class="kpi-label">Último precio</div>
@@ -631,6 +676,7 @@
       const isOpen  = list.classList.contains('open')
       list.classList.toggle('open', !isOpen)
       chevron.classList.toggle('open', !isOpen)
+      header.classList.toggle('open', !isOpen)
     }
 
     function esc(str) {
