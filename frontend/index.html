@@ -574,11 +574,12 @@
         return
       }
 
-      if (data.type === 'variants') { lastVariants = data; renderVariants(data); return }
+      if (data.type === 'variants') { lastVariants = { ...data, originalQ: q }; renderVariants(data); return }
       if (data.type === 'result')   { renderResult(data);   return }
     }
 
     function renderVariants(data) {
+      if (data.originalQ !== undefined) qEl.value = data.originalQ
       const items = data.variants.map(v =>
         `<div class="variant-item" data-name="${esc(v.product_name)}">${esc(v.product_name)}</div>`
       ).join('')
