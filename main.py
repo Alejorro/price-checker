@@ -20,6 +20,22 @@ def index():
         return f.read()
 
 
+@app.get("/stats")
+def stats():
+    with cursor() as (cur, _):
+        cur.execute("SELECT COUNT(*) AS total FROM search_log")
+        total = cur.fetchone()["total"]
+        cur.execute("""
+            SELECT DATE(searched_at) AS day, COUNT(*) AS searches
+            FROM search_log
+            GROUP BY day
+            ORDER BY day DESC
+            LIMIT 30
+        """)
+        by_day = [{"day": str(r["day"]), "searches": r["searches"]} for r in cur.fetchall()]
+    return {"total_searches": total, "by_day": by_day}
+
+
 def build_date_filter(months: str, date_override: Optional[str]) -> tuple[str, list]:
     if date_override:
         try:
@@ -67,6 +83,10 @@ def search(
     date: Optional[str] = Query(None)
 ):
     q_clean = q.strip()
+
+    with cursor() as (cur, conn):
+        cur.execute("INSERT INTO search_log (query) VALUES (%s)", (q_clean,))
+        conn.commit()
 
     with cursor() as (cur, _):
         # Find distinct product names matching query

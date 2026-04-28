@@ -65,6 +65,14 @@ def init_db():
                 ON purchase_lines(order_date);
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS search_log (
+                id SERIAL PRIMARY KEY,
+                query TEXT NOT NULL,
+                searched_at TIMESTAMP DEFAULT NOW()
+            );
+        """)
+
         cur.execute("SELECT COUNT(*) FROM sync_state")
         row = cur.fetchone()
         if row["count"] == 0:
