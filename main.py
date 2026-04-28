@@ -76,10 +76,6 @@ def search(
 ):
     q_clean = q.strip()
 
-    with cursor() as (cur, conn):
-        cur.execute("INSERT INTO search_log (query) VALUES (%s)", (q_clean,))
-        conn.commit()
-
     with cursor() as (cur, _):
         # Find distinct product names matching query
         cur.execute("""
@@ -99,6 +95,10 @@ def search(
             "query": q_clean,
             "variants": [{"product_name": n} for n in names]
         }
+
+    with cursor() as (cur, conn):
+        cur.execute("INSERT INTO search_log (query) VALUES (%s)", (q_clean,))
+        conn.commit()
 
     product_name = names[0]
     date_sql, date_params = build_date_filter(months, date)
